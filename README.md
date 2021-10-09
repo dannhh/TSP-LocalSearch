@@ -5,20 +5,17 @@
 ### Input dataset format
 The program takes a dataset formatted as follows:
 ```sh
-NAME : sample_input
-COMMENT: 5 POINTS
-1 1 5 
-2 3 2
-3 4 3
-4 5 7
-5 6 11
-EOF
+0.0  3.0  4.0  2.0  7.0
+3.0  0.0  4.0  6.0  3.0
+4.0  4.0  0.0  5.0  8.0
+2.0  6.0  5.0  0.0  6.0
+7.0  3.0  8.0  6.0  0.0
 ```
 ### Output format
 The program creates an output file formatted as follows:
 ```sh
-tour cost: x
-tour: [1,2,3,4,5]
+tour cost: 19
+tour: [1,3,2,5,4]
 ```
 
 ## Algorithm modules included
