@@ -48,7 +48,7 @@ class OptCase(Enum):
     opt_case_7 = "opt_case_7"
     opt_case_8 = "opt_case_8"
 
-
+# Three-opt function to create neighbors by swapping 3 edges
 def three_opt(graph, route):
     # list of neighbor
     neighbor = []

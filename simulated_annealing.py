@@ -2,8 +2,9 @@ import numpy as np
 import math
 import random
 from enum import Enum
+from itertools import cycle, dropwhile, islice
 
-graph = np.loadtxt('C:\Test_code\\att48_d.csv', delimiter=",")
+graph = np.loadtxt(r"C:\Users\Acer\Desktop\HK211\DAAI\att48_d.csv", delimiter=",")
 size = len(graph)
 coolingRate = 2
 
@@ -23,15 +24,41 @@ class OptCase(Enum):
   opt_case_7 = "opt_case_7"
   opt_case_8 = "opt_case_8"
 
+def two_opt(route):
+    list = [] # list of distince random tuples
+    count = 0
+    while count != size:
+        i = random.randrange(1, len(route) - 2, 1)
+        j = random.randrange(i + 1, len(route) - 1, 1)
+
+        # check whether the list has already contained (i,j)
+        if ([i, j]) not in list:
+            list.append([i, j])
+            count += 1
+
+    # for each tuple (i, j), create new route and append to neighbors list 
+    best_neighbor_cost = math.inf
+    best_neighbor_route = []
+    for (i, j) in list:
+        temp = route[i:j + 1]
+        temp.reverse()
+        neighbor = route[:i] + temp + route[j + 1:]
+        new_cost = totalLength(neighbor)
+        if new_cost < best_neighbor_cost:
+          best_neighbor_cost = new_cost
+          best_neighbor_route = neighbor
+
+    return best_neighbor_route
+
 def three_opt(route):
-    #if route is None:
-    #    route = christofides_tsp(graph)
+    # dict to save value of each case
     moves_cost = {OptCase.opt_case_1: 0, OptCase.opt_case_2: 0,
                   OptCase.opt_case_3: 0, OptCase.opt_case_4: 0, 
                   OptCase.opt_case_5: 0, OptCase.opt_case_6: 0, 
                   OptCase.opt_case_7: 0, OptCase.opt_case_8: 0}
                   
     improved = True
+    # route that has the best value
     best_found_route = route
     
     while improved:
@@ -39,7 +66,7 @@ def three_opt(route):
         for (i, j, k) in possible_segments(len(graph)):
             # we check all the possible moves and save the result into the dict
             for opt_case in OptCase:
-                moves_cost[opt_case] = get_cost_change(graph, best_found_route, opt_case, i, j, k)
+                moves_cost[opt_case] = get_cost_change(best_found_route, opt_case, i, j, k)
             # we need the minimum value of substraction of old route - new route
             best_return = max(moves_cost, key = moves_cost.get)
             if moves_cost[best_return] > 0:
@@ -47,99 +74,124 @@ def three_opt(route):
                 improved = True
                 break
 
-    # just to start with the same node -> we will need to cycle the results.
+    # start with the same node -> we will need to cycle the results.
+    inf_cycle = cycle(best_found_route)
+    drop_at_cond = dropwhile(lambda x: x != 0, inf_cycle)
+    slice_route = islice(drop_at_cond, None, len(best_found_route))
+    best_found_route = list(slice_route)
+
     return best_found_route
 
 def possible_segments(N):
     """ Generate the combination of segments """
-    #segments = ((i, j, k) for i in range(N) for j in range(i + 2, N-1) for k in range(j + 2, N - 1 + (i > 0)))
     segments = []
     count = 0
     while count != size:
-      i = random.randrange(1, N - 4, 1)
+      i = random.randrange(0, N - 4, 1)
       j = random.randrange(i + 2, N - 2, 1)
       k = random.randrange(j + 2, N, 1)
+      # if tuple already in segment, generate the other
       if (i,j,k) not in segments:
         segments.append((i,j,k))
         count += 1
 
     return segments
 
-def get_cost_change(graph, route, case, i, j, k):
+def get_cost_change(route, case, i, j, k):
     """ Compare current solution with 7 possible 3-opt moves"""
-    A, B, C, D, E, F = route[i - 1], route[i], route[j - 1], route[j], route[k - 1], route[k % len(route)]
-
-    if case == OptCase.opt_case_1:
-        # first case is the current solution ABC
-        return 0
-
-    elif case == OptCase.opt_case_2:
-        # second case is the case A'BC
-        return graph[A, B] + graph[E, F] - (graph[B, F] + graph[A, E])
-
-    elif case == OptCase.opt_case_3:
-        # ABC'
-        return graph[C, D] + graph[E, F] - (graph[D, F] + graph[C, E])
-
-    elif case == OptCase.opt_case_4:
-        # A'BC'
-        return graph[A, B] + graph[C, D] + graph[E, F] - (graph[A, D] + graph[B, F] + graph[E, C])
-
-    elif case == OptCase.opt_case_5:
-        # A'B'C
-        return graph[A, B] + graph[C, D] + graph[E, F] - (graph[C, F] + graph[B, D] + graph[E, A])
-
-    elif case == OptCase.opt_case_6:
-        # AB'C
-        return graph[B, A] + graph[D, C] - (graph[C, A] + graph[B, D])
-
-    elif case == OptCase.opt_case_7:
-        # AB'C'
-        return graph[A, B] + graph[C, D] + graph[E, F] - (graph[B, E] + graph[D, F] + graph[C, A])
-
-    elif case == OptCase.opt_case_8:
-        # A'B'C
-        return graph[A, B] + graph[C, D] + graph[E, F] - (graph[A, D] + graph[C, F] + graph[B, E])
-
-def reverse_segments(route, case, i, j, k):
-    zero_segment = []
     if (i - 1) < (k % len(route)):
-        zero_segment.append(route[0])
-        first_segment = route[k% len(route):] + route[1:i]
+        first_segment = route[k% len(route):] + route[:i]
     else:
         first_segment = route[k % len(route):i]
     second_segment = route[i:j]
     third_segment = route[j:k]
 
+    current_cost = totalLength(route)
+    if case == OptCase.opt_case_1:
+        # first case is the current solution ABC
+        return 0
+    elif case == OptCase.opt_case_2:
+        # second case is the case A'BC
+        solution = list(reversed(first_segment)) + second_segment + third_segment
+        new_cost = totalLength(solution)
+        return current_cost - new_cost
+    elif case == OptCase.opt_case_3:
+        # ABC'
+        solution = first_segment + second_segment + list(reversed(third_segment))
+        new_cost = totalLength(solution)
+        return current_cost - new_cost
+    elif case == OptCase.opt_case_4:
+        # A'BC'
+        solution = list(reversed(first_segment)) + second_segment + list(reversed(third_segment))
+        new_cost = totalLength(solution)
+        return current_cost - new_cost
+    elif case == OptCase.opt_case_5:
+        # A'B'C
+        solution = list(reversed(first_segment)) + list(reversed(second_segment)) + third_segment
+        new_cost = totalLength(solution)
+        return current_cost - new_cost
+    elif case == OptCase.opt_case_6:
+        # AB'C
+        solution = first_segment + list(reversed(second_segment)) + third_segment
+        new_cost = totalLength(solution)
+        return current_cost - new_cost
+    elif case == OptCase.opt_case_7:
+        # AB'C'
+        solution = first_segment + list(reversed(second_segment)) + list(reversed(third_segment))
+        new_cost = totalLength(solution)
+        return current_cost - new_cost
+    elif case == OptCase.opt_case_8:
+        # A'B'C
+        solution = list(reversed(first_segment)) + list(reversed(second_segment)) + list(reversed(third_segment))
+        new_cost = totalLength(solution)
+        return current_cost - new_cost
+
+def reverse_segments(route, case, i, j, k):
+    if (i - 1) < (k % len(route)):
+        first_segment = route[k % len(route):] + route[:i]
+    else:
+        first_segment = route[k % len(route):i]
+    second_segment = route[i:j]
+    third_segment = route[j:k]
+
+    solution = route
     if case == OptCase.opt_case_1:
         # first case is the current solution ABC
         pass
     elif case == OptCase.opt_case_2:
         # A'BC
-        solution = zero_segment +  list(reversed(first_segment)) + second_segment + third_segment
+        solution = list(reversed(first_segment)) + second_segment + third_segment
     elif case == OptCase.opt_case_3:
         # ABC'
-        solution = zero_segment + first_segment + second_segment + list(reversed(third_segment))
+        solution = first_segment + second_segment + list(reversed(third_segment))
     elif case == OptCase.opt_case_4:
         # A'BC'
-        solution = zero_segment +  list(reversed(first_segment)) + second_segment + list(reversed(third_segment))
+        solution = list(reversed(first_segment)) + second_segment + list(reversed(third_segment))
     elif case == OptCase.opt_case_5:
         # A'B'C
-        solution = zero_segment +  list(reversed(first_segment)) + list(reversed(second_segment)) + third_segment
+        solution = list(reversed(first_segment)) + list(reversed(second_segment)) + third_segment
     elif case == OptCase.opt_case_6:
         # AB'C
-        solution = zero_segment + first_segment + list(reversed(second_segment)) + third_segment
+        solution = first_segment + list(reversed(second_segment)) + third_segment
     elif case == OptCase.opt_case_7:
         # AB'C'
-        solution = zero_segment + first_segment + list(reversed(second_segment)) + list(reversed(third_segment))
+        solution = first_segment + list(reversed(second_segment)) + list(reversed(third_segment))
     elif case == OptCase.opt_case_8:
         # A'B'C
-        solution = zero_segment + list(reversed(first_segment)) + list(reversed(second_segment)) + list(reversed(third_segment))
+        solution = list(reversed(first_segment)) + list(reversed(second_segment)) + list(reversed(third_segment))
     return solution
 
 def solver():
     path = list(range(0, size))
     random.shuffle(path)
+    # Start node always 0
+    if int(path[0]) != 0:
+        for i in range(len(path)):
+            if int(path[i]) == 0:
+                swap = path[0]
+                path[0] = path[i]
+                path[i] = swap
+                break
     
     currLength = totalLength(path)
     count = 0
@@ -150,7 +202,8 @@ def solver():
 
         count += 1
 
-        newPath = three_opt(path)
+        newPath = two_opt(path)
+        #newPath = three_opt(path)
         newLength = totalLength(newPath)
 
         if newLength < currLength:
@@ -166,6 +219,8 @@ def solver():
                 count = 0
 
         T /= 1.005
+    # add the last node equal to start node to complete the route
+    path.append(0)
     return path
 
 print(graph)
