@@ -5,6 +5,8 @@ import random
 from enum import Enum
 from itertools import cycle, dropwhile, islice
 
+graph = []
+lines = 0  #số thành phố
 
 def cost(graph, route):
     cost = 0
@@ -35,11 +37,6 @@ def two_opt(graph, route):
         neighbors.append(neighbor)
 
     return neighbors
-
-
-graph = []
-lines = 0  #số thành phố
-
 
 class OptCase(Enum):
     opt_case_1 = "opt_case_1"
