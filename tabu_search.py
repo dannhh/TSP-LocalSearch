@@ -218,9 +218,7 @@ def tabu_search(path):
     bestCandidate_turn = 0  #Số vòng lặp cho một bestCandidate
 
     while not stop:
-        sNeighborhood = getNeighborhood(
-            graph, bestCandidate
-        )  #danh sách các lời giải ở vùng lân cận từ ứng cử viên
+        sNeighborhood = getNeighborhood(graph, bestCandidate)  #danh sách các lời giải ở vùng lân cận từ ứng cử viên
         bestCandidate = sNeighborhood[0]
         for sCandidate in sNeighborhood:
             if (sCandidate not in tabuList) and (cost(graph, sCandidate) < cost(graph, bestCandidate)):
