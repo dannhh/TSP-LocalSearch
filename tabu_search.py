@@ -16,7 +16,7 @@ def cost(graph, route):
     return cost
 
 # Two-opt function to create neighbors by swapping 2 edges
-def two_opt(graph, route):
+def two_opt(route):
     neighbors = [] 
     list = [] # list of distince random tuples
     count = 0
@@ -189,7 +189,7 @@ def reverse_segments(route, case, i, j, k):
 
 
 def getNeighborhood(graph, state):
-    ## return two_opt(graph, state)
+    #return two_opt(state)
     return three_opt(graph, state)
 
 
@@ -197,18 +197,11 @@ def tabu_search(path):
     graph = np.loadtxt(path, delimiter=",")
     #Khởi tạo lời giải ban đầu ngẫu nhiên
     lines = len(graph)
-    s0 = list(range(lines))
+    s0 = list(range(1, lines))
+    # start node always node 0
     shuffle(s0)
-
-    if int(s0[0]) != start_node:
-        for i in range(len(s0)):
-            if int(s0[i]) == start_node:
-                swap = s0[0]
-                s0[0] = s0[i]
-                s0[i] = swap
-                break
-    #s0.append(start_node)
-
+    s0 = [0] + s0
+    
     sBest = s0  #lời giải tốt nhất
     cBest = cost(graph, sBest)  #chi phí của lời giải tốt nhất
     bestCandidate = s0  #ứng cử viên sáng giá

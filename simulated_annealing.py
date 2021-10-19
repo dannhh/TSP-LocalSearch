@@ -182,28 +182,23 @@ def reverse_segments(route, case, i, j, k):
     return solution
 
 def solver():
-    path = list(range(0, size))
-    random.shuffle(path)
+    path = list(range(1, size))
+
     # Start node always 0
-    if int(path[0]) != 0:
-        for i in range(len(path)):
-            if int(path[i]) == 0:
-                swap = path[0]
-                path[0] = path[i]
-                path[i] = swap
-                break
+    random.shuffle(path)
+    path = [0] + path
     
     currLength = totalLength(path)
     count = 0
     T = size * size
-    threshold = math.sqrt(2)
+    threshold = math.sqrt(size)
 
-    while count < 10 and T > 0.0005:
+    while count < threshold and T > 0.0005:
 
         count += 1
 
-        newPath = two_opt(path)
-        #newPath = three_opt(path)
+        #newPath = two_opt(path)
+        newPath = three_opt(path)
         newLength = totalLength(newPath)
 
         if newLength < currLength:
