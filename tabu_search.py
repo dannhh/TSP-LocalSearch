@@ -6,7 +6,7 @@ from enum import Enum
 from itertools import cycle, dropwhile, islice
 
 graph = []
-lines = 0  #số thành phố
+lines = 0  #number of cities
 
 def cost(graph, route):
     cost = 0
@@ -195,23 +195,23 @@ def getNeighborhood(graph, state):
 
 def tabu_search(path):
     graph = np.loadtxt(path, delimiter=",")
-    #Khởi tạo lời giải ban đầu ngẫu nhiên
+    #initial solution
     lines = len(graph)
     s0 = list(range(1, lines))
     # start node always node 0
     shuffle(s0)
     s0 = [0] + s0
     
-    sBest = s0  #lời giải tốt nhất
-    cBest = cost(graph, sBest)  #chi phí của lời giải tốt nhất
-    bestCandidate = s0  #ứng cử viên sáng giá
+    sBest = s0  #best solution
+    cBest = cost(graph, sBest)  #cost of the best solution
+    bestCandidate = s0  #current best solution
     tabuList = []
     tabuList.append(s0)
-    stop = False  #điều kiện dừng
-    bestCandidate_turn = 0  #Số vòng lặp cho một bestCandidate
+    stop = False  #condition to stop searching
+    bestCandidateTurn = 0  #number of iterations for a bestCandidate
 
     while not stop:
-        sNeighborhood = getNeighborhood(graph, bestCandidate)  #danh sách các lời giải ở vùng lân cận từ ứng cử viên
+        sNeighborhood = getNeighborhood(graph, bestCandidate)
         bestCandidate = sNeighborhood[0]
         for sCandidate in sNeighborhood:
             if (sCandidate not in tabuList) and (cost(graph, sCandidate) < cost(graph, bestCandidate)):
@@ -220,23 +220,22 @@ def tabu_search(path):
         if (cost(graph, bestCandidate) < cBest):
             sBest = bestCandidate
             cBest = cost(graph, sBest)
-            bestCandidate_turn = 0
+            bestCandidateTurn = 0
 
         tabuList.append(bestCandidate)
 
         if (len(tabuList) > maxTabuSize):
             tabuList.pop(0)
 
-        if (bestCandidate_turn == stoppingTurn):
+        if (bestCandidateTurn == stoppingTurn):
             stop = True
 
-        bestCandidate_turn += 1
-        # print(tabuList)
+        bestCandidateTurn += 1
     sBest.append(s0[0])
     return sBest, cBest
 
 
-start_node = 0
+startNode = 0
 maxTabuSize = 1000
 neighborhoodSize = 100
 stoppingTurn = 200
