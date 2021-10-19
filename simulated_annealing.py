@@ -4,13 +4,13 @@ import random
 from enum import Enum
 from itertools import cycle, dropwhile, islice
 
-graph = np.loadtxt(r"C:\Users\Acer\Desktop\HK211\DAAI\att48_d.csv", delimiter=",")
+graph = np.loadtxt(r"C:\Users\Acer\Desktop\HK211\DAAI\TSP-LocalSearch\br17atsp.csv", delimiter=",")
 size = len(graph)
 coolingRate = 2
 
 def totalLength(path):
     cost = graph[path[len(path) - 1]][path[0]]
-    for i in range(0, (len(path) - 1)):
+    for i in range(0, (len(graph) - 1)):
         cost += graph[path[i]][path[i + 1]]
     return cost
 
@@ -215,13 +215,14 @@ def solver():
 
         T /= 1.005
     # add the last node equal to start node to complete the route
+    length = totalLength(path)
     path.append(0)
-    return path
+    return path, length
 
 print(graph)
-res = solver()
+res, length = solver()
 print(res)
-print(totalLength(res))
+print(length)
 
 # p = [1, 8, 38, 31, 44, 18, 7, 28, 6, 37, 19, 27, 17, 43, 30, 36, 46, 3, 20, 47, 21, 32, 39, 48, 5, 42, 24, 10, 45, 35, 4, 26, 2, 29, 34, 41, 16, 22, 3, 23, 14, 25, 13, 11, 12, 15, 40, 9]
 # p = [x - 1 for x in p]

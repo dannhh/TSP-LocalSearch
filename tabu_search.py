@@ -189,8 +189,8 @@ def reverse_segments(route, case, i, j, k):
 
 
 def getNeighborhood(graph, state):
-    #return two_opt(state)
-    return three_opt(graph, state)
+    return two_opt(state)
+    #return three_opt(graph, state)
 
 
 def tabu_search(path):
@@ -242,7 +242,7 @@ neighborhoodSize = 100
 stoppingTurn = 200
 
 start_time = time.time()
-sPath, cPath = tabu_search("att48_d.csv")
+sPath, cPath = tabu_search("br17atsp.csv")
 exec_time = time.time() - start_time
 
 print("time: ", exec_time, "seconds")
