@@ -188,13 +188,14 @@ def reverse_segments(route, case, i, j, k):
     return solution
 
 
-def getNeighborhood(graph, state):
-    return two_opt(state)
-    #return three_opt(graph, state)
+def getNeighborhood(graph, state, opt):
+    if opt==2:
+        return two_opt(state)
+    else:
+        return three_opt(graph, state)
 
 
-def tabu_search(path):
-    graph = np.loadtxt(path, delimiter=",")
+def tabu_search(graph, opt):
     #initial solution
     lines = len(graph)
     s0 = list(range(1, lines))
@@ -211,7 +212,7 @@ def tabu_search(path):
     bestCandidateTurn = 0  #number of iterations for a bestCandidate
 
     while not stop:
-        sNeighborhood = getNeighborhood(graph, bestCandidate)
+        sNeighborhood = getNeighborhood(graph, bestCandidate, opt)
         bestCandidate = sNeighborhood[0]
         for sCandidate in sNeighborhood:
             if (sCandidate not in tabuList) and (cost(graph, sCandidate) < cost(graph, bestCandidate)):
@@ -234,16 +235,18 @@ def tabu_search(path):
     sBest.append(s0[0])
     return sBest, cBest
 
-
+"""
 startNode = 0
 maxTabuSize = 1000
 neighborhoodSize = 100
 stoppingTurn = 200
+graph = np.loadtxt("br17atsp.csv", delimiter=",")
 
 start_time = time.time()
-sPath, cPath = tabu_search("br17atsp.csv")
+sPath, cPath = tabu_search(graph, opt)
 exec_time = time.time() - start_time
+
 
 print("time: ", exec_time, "seconds")
 print("tour cost: ", cPath)
-print("tour: ", sPath)
+print("tour: ", sPath)"""
