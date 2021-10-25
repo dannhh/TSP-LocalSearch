@@ -199,7 +199,7 @@ def run():
         with open('input.csv','w',newline='') as filename:
             writer=csv.writer(filename)
             writer.writerows(graph)
-    """if algorithm==tabu:
+    if algorithm==tabu:
         if opt==2:
             tour, cost = tabu_search(filename,2-opt)
         else:
@@ -208,7 +208,7 @@ def run():
         if opt==2:
             tour, cost = simulated_annealing(filename,2-opt)
         else:
-            tour, cost = simulated_annealing(filename,3-opt)"""
+            tour, cost = simulated_annealing(filename,3-opt)
     v=2
     f=1
     tour=[0, 11, 13, 2, 9, 1, 12, 10, 8, 7, 16, 4, 3, 5, 14, 15, 6, 0]
