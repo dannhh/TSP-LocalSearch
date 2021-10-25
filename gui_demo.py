@@ -7,17 +7,21 @@ from pathlib import Path
 import numpy as np
 import math
 import random
+import csv
+import time
+"""import tabu_search
+import simulated_annealing"""
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Toplevel, Entry, filedialog
+from tkinter import Tk, Canvas, Entry, Text, Label, Button, PhotoImage, Toplevel, Entry, filedialog
 from PIL import Image, ImageTk
 
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("./assets")
 
-
+filename=""
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 def add_image(path):
@@ -73,24 +77,157 @@ def visualize_input():
     global v
     v=1
     detail()
-"""def close():
-    create_rectangle(canvas, 0, 0, 1440, 1024, "#FFFFFF", "")
-    create_text(canvas,697.0,480.0,"nw","Input","#669F82",("Rubik Medium", int(18 * r_s)))
-    path_entry.place_forget()
-    enter.place_forget()
-    button_10.place_forget()
-    place(button_12,550.0,519.0,135.0,50.0)
-    place(button_14,755.0,519.0,135.0,50.0)"""
-city_x=0
-city_y=0
-def add_city(event):
-    global city_x, city_y
-    city_x, city_y = event.x, event.y
-#def run():
-#    return
+f=1
+
+coor=[(0,0),(0,0)]
+def add_city(window, canvas, event):
+    global number_of_cities, vertices
+    cities_list.append((event.x, event.y))
+    cities.append(Button(canvas,
+        image=city,
+        text=number_of_cities,
+        width=c_size,
+        height=c_size,
+        borderwidth=0,
+        highlightthickness=0,
+        compound="center",
+        command=lambda c=(event.x-15*r_s,event.y-15*r_s), n=number_of_cities:
+                         [add_path(window, canvas,c,n), vertices.append(event.x,event.y)]
+    ))
+    cities[number_of_cities].place(x=event.x-15*r_s, y=event.y-15*r_s)
+    number_of_cities+=1
+    graph.append([])
+    for i in range(number_of_cities-1):
+        graph[i].append(999999)
+    for i in range(number_of_cities):
+        graph[number_of_cities-1].append(999999)
+def add_city_path(window, canvas, vertices, graph):
+    global number_of_cities
+    number_of_cities=len(vertices)
+    for i in range (number_of_cities):
+        cities.append(Button(canvas,
+            image=city,
+            text=i,
+            width=c_size,
+            height=c_size,
+            borderwidth=0,
+            highlightthickness=0,
+            compound="center"
+            )
+        )
+        cities[i].place(x=int(vertices[i][0]-15*r_s), y=int(vertices[i][1]-15*r_s))
+        """for j in range(number_of_cities):
+            if i==j: break
+            inter_point=(vertices[i][0],vertices[j][1])
+            canvas.create_line(vertices[i], inter_point ,vertices[j], width=1, arrow = "last", smooth=1)
+            canvas.create_text(coor[0][0], coor[1][1],text=graph[i][j])"""
+d_mode=0
+graph=[]
+def draw_city(window, canvas):
+    canvas.update()
+    if d_mode==0:
+        canvas.bind("<Button>",lambda event: add_city(window, canvas, event))
+        canvas.place()
+def change_draw_mode(canvas):
+    global d_mode, graph
+    if d_mode==0:
+        d_mode=1
+        canvas.unbind("<Button>")
+        canvas.place()
+def take_input(window, canvas, text):
+    global graph
+    graph[no2][no1]=text.get(1.0,"end-1c")
+    canvas.create_text(coor[0][0], coor[1][1],text=graph[no2][no1])
+    if graph[no2][no1]=='':
+        graph[no2][no1]=999999
+    else:
+        graph[no2][no1]=int(graph[no2][no1])
+    window.destroy()
+    window.update()
+def enter_cost(canvas):
+    print(1)
+    ec_window=Toplevel(window)
+    ec_window.geometry('%dx%d+%d+%d' % (500*r_s,125*r_s,470*r_s,424*r_s))
+    ec_canvas = Canvas(
+        ec_window,
+        bg = "#FFFFFF",
+        height = 125*r_s,
+        width = 500*r_s,
+        bd = 0,
+        highlightthickness = 0,
+        relief = "ridge"
+    )
+
+    ec_canvas.place(x = 0, y = 0)
+    create_text(ec_canvas,25.0,5.0,"nw",
+                "Enter the cost of travelling from city "+ str(no1) +" to city "+ str(no2),
+                "#669F82",("Rubik Black", int(18 * r_s)))
+    text=Text(ec_canvas)
+    place(text,200.0,35.0,100,30)
+    enter=Button(ec_canvas, text="Enter", command= lambda:take_input(ec_window, canvas,text))
+    place(enter,200.0,65.0,100,30)
+    
+def add_path(window, canvas,c,n):
+    if d_mode or v==2:
+        global f
+        global coor
+        global no1, no2
+        if f:
+            coor[0]=c
+            no1=n
+            f=0
+        elif c!=coor[0]:
+            coor[1]=c
+            no2=n
+            inter_point=(coor[0][0],coor[1][1])
+            if v==0:
+                canvas.create_line(coor[0], inter_point ,coor[1], width=1, arrow = "last", smooth=1)
+                canvas.bind("<Expose>",enter_cost(canvas))
+            if v==2:
+                canvas.create_line(coor[0], inter_point ,coor[1], width=1, fill="#FF6F69", arrow = "last", smooth=1)
+                canvas.update()
+            f=1
+    
+def run():
+    global tour, cost, v, f
+    tour=[]
+    cost=0
+    window.wm_attributes('-transparentcolor','#FF0000')
+    if v==0:
+        with open('input.csv','w'):
+            pass
+        with open('input.csv','w',newline='') as filename:
+            writer=csv.writer(filename)
+            writer.writerows(graph)
+    """if algorithm==tabu:
+        if opt==2:
+            tour, cost = tabu_search(filename,2-opt)
+        else:
+            tour, cost = tabu_search(filename,3-opt)
+    else:
+        if opt==2:
+            tour, cost = simulated_annealing(filename,2-opt)
+        else:
+            tour, cost = simulated_annealing(filename,3-opt)"""
+    v=2
+    f=1
+    tour=[0, 11, 13, 2, 9, 1, 12, 10, 8, 7, 16, 4, 3, 5, 14, 15, 6, 0]
+    cost = 39.0
+    c_label = Label(window, text=cost, fg="#669F82", bg="#FFEEAD",font=("Rubik Medium", int(30 * r_s)))
+    c_label.place(x=305.0*r_s,y=890.0*r_s)
+    t_label = Label(window, text=tour, fg="#669F82", bg="#FFEEAD",font=("Rubik Medium", int(30 * r_s)))
+    t_label.place(x=305.0*r_s,y=935.0*r_s)
+    t_length=len(tour)
+    for i in range(t_length):
+        add_path(window, drawing_canvas, vertices[tour[i]],tour[i])
+        time.sleep(0.5)
+        if i+1 in range(t_length):
+            add_path(window, drawing_canvas, vertices[tour[i+1]],tour[i+1])
+            time.sleep(0.5)
 #detail_window
 def detail():
-    if v and filename=="": return
+    if v==1 and filename=="": return
+    global window
     window=Toplevel(root)
     
     window.geometry('%dx%d+0+0' % (1440*r_s,1024*r_s))
@@ -106,6 +243,7 @@ def detail():
     )
 
     canvas.place(x = 0, y = 0)
+    global drawing_canvas
     drawing_canvas= Canvas(
         window,
         bg = "#FFFFFF",
@@ -215,7 +353,7 @@ def detail():
         image=button_image_15,
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: print("button_15 clicked"),
+        command=lambda: change_draw_mode(drawing_canvas),
         relief="flat"
     )
 
@@ -225,7 +363,7 @@ def detail():
         image=button_image_16,
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: print("button_16 clicked"),
+        command=lambda: draw_city(window, drawing_canvas),
         relief="flat"
     )
     #place button
@@ -238,10 +376,12 @@ def detail():
     place(button_7,1092.0,490.0,348.0,60.0)
 
     place(button_9,1242.0,7.0,106.0,60.0)
+    
+    if v==0:
+        place(button_15,12.0,110.0,50.0,50.0)
 
-    place(button_15,12.0,110.0,50.0,50.0)
-
-    place(button_16,12.0,185.0,50.0,50.0)
+    if v==0:
+        place(button_16,12.0,185.0,50.0,50.0)
 
     #Rectangle
     create_rectangle(canvas,0.0,75.0,75.0,1024.0,"#FFCC5C","")
@@ -250,39 +390,33 @@ def detail():
 
     create_rectangle(canvas,75.0,874.0,1440.0,1024.0,"#FFEEAD","")
 
-    #create_rectangle(canvas, 520.0,424.0, 920.0, 599.0, "#FFFFFF", "#FFCC5C")
-
-    #create_rectangle(canvas, 520.0, 424.0, 920.0, 474.0, "#88D8B0", "")
-
     #Text
-    create_text(canvas,105.0,891.0,"nw","Tour cost:","#669F82",("Rubik Medium", int(30 * r_s)))
+    create_text(canvas,105.0,890.0,"nw","Tour cost:","#669F82",("Rubik Medium", int(30 * r_s)))
 
-    #create_text(canvas,540.0,439.0,"nw","Travelling saleman problem","#FFFFFF",("Rubik Black", int(18 * r_s)))
-
-    create_text(canvas,105.0,931.0,"nw","Tour path:","#669F83",("Rubik Medium", int(30 * r_s)))
+    create_text(canvas,105.0,935.0,"nw","Tour path:","#669F82",("Rubik Medium", int(30 * r_s)))
 
     create_text(canvas,50.0,17.0,"nw","Travelling saleman problem","#F9F9F9",("Rubik Black", int(36 * r_s)))
 
-    if v:
+    if v==1:
         graph = np.loadtxt(filename, delimiter=",")
         size=len(graph)
+        global vertices
         vertices=list(zip(multiple(random.sample(range(0,size*2),size),int(1440*r_s*0.75/(size*2))),
                           multiple(random.sample(range(0,size*2),size),int(1024*r_s*0.75/(size*2)))))
-        print(vertices)
-        drawing_canvas.create_polygon(vertices, fill="#FFFFFF", outline="#000000")
-    else: 
-        drawing_canvas.bind("<Button-1>",add_city)
-        drawing_canvas.place()
-        
-        drawing_canvas.create_image(city_x, city_y, image = city)
+        for i in range (0,size):
+            add_city_path(window, drawing_canvas, vertices, graph)
+                
     window.resizable(False, False)
     window.mainloop()
 root = Tk()
 
 w, h = root.winfo_screenwidth(), root.winfo_screenheight()
 r_s=min(w/1440,h/1024)*0.9 #fit screen width, height
-
+number_of_cities=0
 city=add_image(relative_to_assets("city30.png"))
+cities_list=[]
+cities=[]
+c_size=city.height()
 
 root.geometry('%dx%d+0+0' % (1440*r_s,1024*r_s))
 root.configure(bg = "#FFFFFF")
@@ -323,12 +457,15 @@ button_12 = Button(
     relief="flat"
 )
 
+def change_v():
+    global v
+    v=0
 button_image_14 = add_image(relative_to_assets("button_14.png"))
 button_14 = Button(
     image=button_image_14,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: detail(),
+    command=lambda: [change_v(),detail()],
     relief="flat"
 )
 
