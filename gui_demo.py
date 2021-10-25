@@ -9,8 +9,8 @@ import math
 import random
 import csv
 import time
-"""import tabu_search
-import simulated_annealing"""
+from tabu_search import tabu_search
+from simulated_annealing import solver
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
@@ -192,27 +192,20 @@ def run():
     global tour, cost, v, f
     tour=[]
     cost=0
-    window.wm_attributes('-transparentcolor','#FF0000')
-    if v==0:
+    """if v==0:
         with open('input.csv','w'):
             pass
         with open('input.csv','w',newline='') as filename:
             writer=csv.writer(filename)
-            writer.writerows(graph)
-    """if algorithm==tabu:
-        if opt==2:
-            tour, cost = tabu_search(filename,2-opt)
-        else:
-            tour, cost = tabu_search(filename,3-opt)
+            writer.writerows(graph)"""
+    if algorithm==tabu:
+        tour, cost = tabu_search(graph,opt)
     else:
-        if opt==2:
-            tour, cost = simulated_annealing(filename,2-opt)
-        else:
-            tour, cost = simulated_annealing(filename,3-opt)"""
+        tour, cost = solver(graph,opt)
     v=2
     f=1
-    tour=[0, 11, 13, 2, 9, 1, 12, 10, 8, 7, 16, 4, 3, 5, 14, 15, 6, 0]
-    cost = 39.0
+    """tour=[0, 11, 13, 2, 9, 1, 12, 10, 8, 7, 16, 4, 3, 5, 14, 15, 6, 0]
+    cost = 39.0"""
     c_label = Label(window, text=cost, fg="#669F82", bg="#FFEEAD",font=("Rubik Medium", int(30 * r_s)))
     c_label.place(x=305.0*r_s,y=890.0*r_s)
     t_label = Label(window, text=tour, fg="#669F82", bg="#FFEEAD",font=("Rubik Medium", int(30 * r_s)))
@@ -398,6 +391,7 @@ def detail():
     create_text(canvas,50.0,17.0,"nw","Travelling saleman problem","#F9F9F9",("Rubik Black", int(36 * r_s)))
 
     if v==1:
+        global graph
         graph = np.loadtxt(filename, delimiter=",")
         size=len(graph)
         global vertices
