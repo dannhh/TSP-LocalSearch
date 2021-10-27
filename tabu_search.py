@@ -235,18 +235,16 @@ def tabu_search(graph, opt):
     sBest.append(s0[0])
     return sBest, cBest
 
-"""
-startNode = 0
+
+#startNode = 0
 maxTabuSize = 1000
 neighborhoodSize = 100
 stoppingTurn = 200
+"""
 graph = np.loadtxt("br17atsp.csv", delimiter=",")
-
 start_time = time.time()
 sPath, cPath = tabu_search(graph, opt)
 exec_time = time.time() - start_time
-
-
 print("time: ", exec_time, "seconds")
 print("tour cost: ", cPath)
 print("tour: ", sPath)"""

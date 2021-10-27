@@ -5,11 +5,9 @@ from enum import Enum
 from itertools import cycle, dropwhile, islice
 
 #graph = np.loadtxt(r"C:\Users\Acer\Desktop\HK211\DAAI\TSP-LocalSearch\br17atsp.csv", delimiter=",")
-# size = len(graph)
-# coolingRate = 2
-# graph = []
+coolingRate = 2
 
-def totalLength(path):
+def totalLength(path, graph):
     cost = graph[path[len(path) - 1]][path[0]]
     for i in range(0, (len(graph) - 1)):
         cost += graph[path[i]][path[i + 1]]
@@ -25,7 +23,8 @@ class OptCase(Enum):
   opt_case_7 = "opt_case_7"
   opt_case_8 = "opt_case_8"
 
-def two_opt(route):
+def two_opt(route,graph):
+    size = len(graph)
     list = [] # list of distince random tuples
     count = 0
     while count != size:
@@ -44,14 +43,15 @@ def two_opt(route):
         temp = route[i:j + 1]
         temp.reverse()
         neighbor = route[:i] + temp + route[j + 1:]
-        new_cost = totalLength(neighbor)
+        new_cost = totalLength(neighbor, graph)
         if new_cost < best_neighbor_cost:
           best_neighbor_cost = new_cost
           best_neighbor_route = neighbor
 
     return best_neighbor_route
 
-def three_opt(route):
+def three_opt(route,graph):
+    size = len(graph)
     # dict to save value of each case
     moves_cost = {OptCase.opt_case_1: 0, OptCase.opt_case_2: 0,
                   OptCase.opt_case_3: 0, OptCase.opt_case_4: 0, 
@@ -87,7 +87,7 @@ def possible_segments(N):
     """ Generate the combination of segments """
     segments = []
     count = 0
-    while count != size:
+    while count != N:
       i = random.randrange(0, N - 4, 1)
       j = random.randrange(i + 2, N - 2, 1)
       k = random.randrange(j + 2, N, 1)
@@ -107,44 +107,44 @@ def get_cost_change(route, case, i, j, k):
     second_segment = route[i:j]
     third_segment = route[j:k]
 
-    current_cost = totalLength(route)
+    current_cost = totalLength(route, graph)
     if case == OptCase.opt_case_1:
         # first case is the current solution ABC
         return 0
     elif case == OptCase.opt_case_2:
         # second case is the case A'BC
         solution = list(reversed(first_segment)) + second_segment + third_segment
-        new_cost = totalLength(solution)
+        new_cost = totalLength(solution, graph)
         return current_cost - new_cost
     elif case == OptCase.opt_case_3:
         # ABC'
         solution = first_segment + second_segment + list(reversed(third_segment))
-        new_cost = totalLength(solution)
+        new_cost = totalLength(solution, graph)
         return current_cost - new_cost
     elif case == OptCase.opt_case_4:
         # A'BC'
         solution = list(reversed(first_segment)) + second_segment + list(reversed(third_segment))
-        new_cost = totalLength(solution)
+        new_cost = totalLength(solution, graph)
         return current_cost - new_cost
     elif case == OptCase.opt_case_5:
         # A'B'C
         solution = list(reversed(first_segment)) + list(reversed(second_segment)) + third_segment
-        new_cost = totalLength(solution)
+        new_cost = totalLength(solution, graph)
         return current_cost - new_cost
     elif case == OptCase.opt_case_6:
         # AB'C
         solution = first_segment + list(reversed(second_segment)) + third_segment
-        new_cost = totalLength(solution)
+        new_cost = totalLength(solution, graph)
         return current_cost - new_cost
     elif case == OptCase.opt_case_7:
         # AB'C'
         solution = first_segment + list(reversed(second_segment)) + list(reversed(third_segment))
-        new_cost = totalLength(solution)
+        new_cost = totalLength(solution, graph)
         return current_cost - new_cost
     elif case == OptCase.opt_case_8:
         # A'B'C
         solution = list(reversed(first_segment)) + list(reversed(second_segment)) + list(reversed(third_segment))
-        new_cost = totalLength(solution)
+        new_cost = totalLength(solution, graph)
         return current_cost - new_cost
 
 def reverse_segments(route, case, i, j, k):
@@ -181,90 +181,55 @@ def reverse_segments(route, case, i, j, k):
         # A'B'C
         solution = list(reversed(first_segment)) + list(reversed(second_segment)) + list(reversed(third_segment))
     return solution
-graph = []
-size = 0
-def solver(filename, opt):
-    print(opt)
-    global graph
-    graph = np.loadtxt(filename, delimiter=",")
-    # np.hstack((graph,graph2))
-    print(graph)
-    coolingRate = 0.9995
-    global size
-    size += len(graph)
+
+def solver(graph, opt):
+    size = len(graph)
     path = list(range(1, size))
 
     # Start node always 0
     random.shuffle(path)
     path = [0] + path
     
-    currLength = totalLength(path)
+    currLength = totalLength(path, graph)
     count = 0
     T = size * size
     threshold = math.sqrt(size)
 
-    if opt == 2:
-        while count < threshold and T > 0.0005:
+    while count < threshold and T > 0.0005:
 
-            count += 1
+        count += 1
 
-            newPath = two_opt(path)
-            # newPath = three_opt(path)
-            newLength = totalLength(newPath)
+        if opt==2:
+            newPath = two_opt(path,graph)
+        else:
+            newPath = three_opt(path,graph)
+        newLength = totalLength(newPath, graph)
 
-            if newLength < currLength:
+        if newLength < currLength:
+            path = newPath
+            currLength = newLength
+            count = 0
+        else: 
+            prob = math.exp(-(newLength - currLength)/T)
+
+            if random.uniform(0, 1) <= prob:
                 path = newPath
                 currLength = newLength
                 count = 0
-            else: 
-                prob = math.exp(-(newLength - currLength)/T)
 
-                if random.uniform(0, 1) <= prob:
-                    path = newPath
-                    currLength = newLength
-                    count = 0
+        T /= 1.005
+    # add the last node equal to start node to complete the route
+    length = totalLength(path, graph)
+    path.append(0)
+    return path, length
+"""
+print(graph)
+res, length = solver(graph, 2)
+print(res)
+print(length)"""
 
-            T *= coolingRate
-        # add the last node equal to start node to complete the route
-        length = totalLength(path)
-        path.append(0)
-        return path, length
-    
-    if opt == 3:
-        while count < threshold and T > 0.0005:
-
-            count += 1
-
-            # newPath = two_opt(path)
-            newPath = three_opt(path)
-            newLength = totalLength(newPath)
-
-            if newLength < currLength:
-                path = newPath
-                currLength = newLength
-                count = 0
-            else: 
-                prob = math.exp(-(newLength - currLength)/T)
-
-                if random.uniform(0, 1) <= prob:
-                    path = newPath
-                    currLength = newLength
-                    count = 0
-
-            T *= coolingRate
-        # add the last node equal to start node to complete the route
-        length = totalLength(path)
-        path.append(0)
-        return path, length
-
-
-# print(graph)
-# res, length = solver(r"C:\Test_code\DoAn\br17atsp.csv", 2)
-# print(res)
-# print(length)
-# path = solver()
 # p = [1, 8, 38, 31, 44, 18, 7, 28, 6, 37, 19, 27, 17, 43, 30, 36, 46, 3, 20, 47, 21, 32, 39, 48, 5, 42, 24, 10, 45, 35, 4, 26, 2, 29, 34, 41, 16, 22, 3, 23, 14, 25, 13, 11, 12, 15, 40, 9]
 # p = [x - 1 for x in p]
-# print(totalLength(p))
+# print(totalLength(p, graph))
 # print(three_opt(p))
-# print(totalLength(p))
+# print(totalLength(p, graph))
