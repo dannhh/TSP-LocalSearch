@@ -7,6 +7,9 @@ from itertools import cycle, dropwhile, islice
 
 graph = []
 lines = 0  #number of cities
+maxTabuSize = 1000
+neighborhoodSize = 100
+stoppingTurn = 200
 
 def cost(graph, route):
     cost = 0
@@ -235,12 +238,8 @@ def tabu_search(graph, opt):
     sBest.append(s0[0])
     return sBest, cBest
 
-
-#startNode = 0
-maxTabuSize = 1000
-neighborhoodSize = 100
-stoppingTurn = 200
 """
+startNode = 0
 graph = np.loadtxt("br17atsp.csv", delimiter=",")
 start_time = time.time()
 sPath, cPath = tabu_search(graph, opt)
