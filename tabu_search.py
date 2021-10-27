@@ -82,12 +82,7 @@ def three_opt(graph, route):
                 neighbor.append(best_found_route)
                 improved = True
                 break
-    # start with the same node -> we need to cycle the results.
-    inf_cycle = cycle(best_found_route)
-    drop_at_cond = dropwhile(lambda x: x != 0, inf_cycle)
-    slice_route = islice(drop_at_cond, None, len(best_found_route))
-    best_found_route = list(slice_route)
-    neighbor.append(best_found_route)
+
     return neighbor
 
 
