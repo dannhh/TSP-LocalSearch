@@ -120,7 +120,7 @@ class App:
         self.root.geometry('%dx%d+0+0' % (1440*r_s,1024*r_s))
         self.root.configure(bg = "#FFFFFF")
         self.canvas.place(x = 0, y = 0)
-        create_text(self.canvas,697.0,480.0,"nw","Input","#669F82",("Rubik Medium", int(18 * r_s)))
+        create_text(self.canvas,697.0,480.0,"nw","Input","#669F82",("Lucida Sans", int(18 * r_s), "bold"))
         place(self.button_12,550.0,519.0,135.0,50.0)
         place(self.button_14,755.0,519.0,135.0,50.0)
         self.root.resizable(False, False)
@@ -266,7 +266,7 @@ class App:
         def display(self):
             self.window.geometry('%dx%d+0+0' % (1440*r_s,1024*r_s))
             self.canvas.place(x = 0, y = 0)
-            self.drawing_canvas.place(x = int(75*r_s), y = int(75*r_s))
+            self.drawing_canvas.place(x = int(90*r_s), y = int(90*r_s))
             
             #place self.button
             place(self.button_2,1183.0,568.0,257,60)
@@ -284,16 +284,16 @@ class App:
             create_rectangle(self.canvas,0.0,0.0,1440.0,75.0,"#88D8B0","")
             create_rectangle(self.canvas,75.0,874.0,1440.0,1024.0,"#FFEEAD","")
             #Text
-            self.cost_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(27*r_s),width=int(100*r_s),font=("Rubik Medium", int(25 * r_s)),relief="flat")
-            self.tour_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(54*r_s),width=int(1355*r_s),font=("Rubik Medium", int(25 * r_s)),relief="flat")
-            self.time_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(27*r_s),width=int(100*r_s),font=("Rubik Medium", int(25 * r_s)),relief="flat")
+            self.cost_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(20*r_s),width=int(100*r_s),font=("Lucida Sans", int(15 * r_s)),relief="flat")
+            self.tour_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(68*r_s),width=int(1355*r_s),font=("Lucida Sans", int(15 * r_s)),relief="flat")
+            self.time_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(20*r_s),width=int(100*r_s),font=("Lucida Sans", int(15 * r_s)),relief="flat")
             self.cost_text.insert(END, "Tour cost: ")
             self.tour_text.insert(END, "Tour path: ")
             self.time_text.insert(END, "Tour time: ")
             self.cost_text.place(x=int(80*r_s), y=int(880*r_s),width=int(1000*r_s))
             self.tour_text.place(x=int(80*r_s), y=int(915*r_s),width=int(1355*r_s))
             self.time_text.place(x=int(80*r_s), y=int(980*r_s),width=int(1000*r_s))
-            create_text(self.canvas,50.0,17.0,"nw","Travelling saleman problem","#F9F9F9",("Rubik Black", int(36 * r_s)))
+            create_text(self.canvas,50.0,17.0,"nw","Travelling saleman problem","#F9F9F9",("Lucida Sans", int(36 * r_s),"bold"))
             #if input is csv file
             if v_mode==1:
                 global graph
@@ -339,9 +339,8 @@ class App:
                 borderwidth=0,
                 highlightthickness=0,
                 compound="center",
-                command=lambda c=(event.x-15*r_s,event.y-15*r_s), n=number_of_cities:
+                command=lambda c=(event.x,event.y), n=number_of_cities:
                                     [self.add_path(c,n)]
-                                 #""", vertices.append(event.x,event.y)"""]
             ))
             cities[number_of_cities].place(x=event.x-15*r_s, y=event.y-15*r_s)
             number_of_cities+=1
@@ -365,11 +364,6 @@ class App:
                     )
                 )
                 cities[i].place(x=int(vertices[i][0]-15*r_s), y=int(vertices[i][1]-15*r_s))
-                """for j in range(number_of_cities):
-                    if i==j: break
-                    inter_point=(vertices[i][0],vertices[j][1])
-                    canvas.create_line(vertices[i], inter_point ,vertices[j], width=1, arrow = "last", smooth=1)
-                    canvas.create_text(coor[0][0], coor[1][1],text=graph[i][j])"""
 
         def draw_city(self):
             #self.drawing_canvas.update()
@@ -385,7 +379,8 @@ class App:
         def take_input(self, ec_window, text):
             global graph
             graph[no2][no1]=text.get(1.0,"end-1c")
-            self.drawing_canvas.create_text(coor[0][0], coor[1][1],text=graph[no2][no1])
+            central_point=[(coor[0][0]+coor[0][1])/2,(coor[0][1]+coor[1][1])/2]
+            self.drawing_canvas.create_text((coor[0][0]+central_point[0])/2, (coor[1][1]+central_point[1])/2,text=graph[no2][no1])
             if graph[no2][no1]=='':
                 graph[no2][no1]=999999
             else:
@@ -408,7 +403,7 @@ class App:
             ec_canvas.place(x = 0, y = 0)
             create_text(ec_canvas,25.0,5.0,"nw",
                         "Enter the cost of travelling from city "+ str(no1) +" to city "+ str(no2),
-                        "#669F82",("Rubik Black", int(18 * r_s)))
+                        "#669F82",("Lucida Sans", int(18 * r_s)))
             text=Text(ec_canvas)
             place(text,200.0,35.0,100,30)
             enter=Button(ec_canvas, text="Enter", command= lambda: self.take_input(ec_window,text))
@@ -426,12 +421,19 @@ class App:
                 elif c!=coor[0]:
                     coor[1]=c
                     no2=n
-                    inter_point=(coor[0][0],coor[1][1])
+                    def choose_connect_point(city1, city2):
+                        delta_x=city2[0]-city1[0]
+                        delta_y=city2[1]-city1[1]
+                        ret_city1=[city1[0],int(city1[1]+np.sign(delta_x)*self.c_size/2)]
+                        ret_city2=[int(city2[0]-np.sign(delta_x)*self.c_size/2),city2[1]]
+                        return ret_city1, ret_city2
+                    ret_city1, ret_city2=choose_connect_point(coor[0], coor[1])
+                    inter_point=(ret_city1[0],ret_city2[1])
                     if v_mode==0:
-                        self.drawing_canvas.create_line(coor[0], inter_point ,coor[1], width=1, arrow = "last", smooth=1)
+                        self.drawing_canvas.create_line(ret_city1, inter_point ,ret_city2, width=1, arrow = "last", smooth=1)
                         self.enter_cost()
                     if v_mode==2:
-                        self.drawing_canvas.create_line(coor[0], inter_point ,coor[1], width=1, fill="#FF6F69", arrow = "last", smooth=1)
+                        self.drawing_canvas.create_line(ret_city1, inter_point ,ret_city2, width=1, fill="#FF6F69", arrow = "last", smooth=1)
                         self.drawing_canvas.update()
                     is_first_city=1
 app=App()

@@ -179,10 +179,9 @@ def reverse_segments(route, case, i, j, k):
     return solution
 graph = []
 size = 0
-def solver(filename, opt):
+def solver(graph1, opt):
     global graph
-    graph = np.loadtxt(filename, delimiter=",")
-    # np.hstack((graph,graph2))
+    graph = graph1
     coolingRate = 0.9995
     global size
     size += len(graph)
