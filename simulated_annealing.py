@@ -182,6 +182,7 @@ size = 0
 def solver(graph1, opt):
     global graph
     graph = graph1
+    
     coolingRate = 0.9995
     global size
     size += len(graph)
@@ -247,10 +248,3 @@ def solver(graph1, opt):
         length = totalLength(path)
         path.append(0)
         return path, length
-
-
-# start_time = time.perf_counter()
-# res, length = solver(r"C:\Users\Acer\Desktop\HK211\DAAI\ftv33.csv", 3)
-# print(res)
-# print(length)
-# print('Time: ', (time.perf_counter() - start_time), 'seconds')
