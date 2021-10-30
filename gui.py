@@ -284,9 +284,9 @@ class App:
             create_rectangle(self.canvas,0.0,0.0,1440.0,75.0,"#88D8B0","")
             create_rectangle(self.canvas,75.0,874.0,1440.0,1024.0,"#FFEEAD","")
             #Text
-            self.cost_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(27*r_s),width=int(100*r_s),font=("Lucida Sans", int(25 * r_s)),relief="flat")
-            self.tour_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(54*r_s),width=int(1355*r_s),font=("Lucida Sans", int(25 * r_s)),relief="flat")
-            self.time_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(27*r_s),width=int(100*r_s),font=("Lucida Sans", int(25 * r_s)),relief="flat")
+            self.cost_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(20*r_s),width=int(100*r_s),font=("Lucida Sans", int(15 * r_s)),relief="flat")
+            self.tour_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(68*r_s),width=int(1355*r_s),font=("Lucida Sans", int(15 * r_s)),relief="flat")
+            self.time_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(20*r_s),width=int(100*r_s),font=("Lucida Sans", int(15 * r_s)),relief="flat")
             self.cost_text.insert(END, "Tour cost: ")
             self.tour_text.insert(END, "Tour path: ")
             self.time_text.insert(END, "Tour time: ")
