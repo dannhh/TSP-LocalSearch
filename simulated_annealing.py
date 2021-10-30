@@ -3,6 +3,7 @@ import math
 import random
 from enum import Enum
 from itertools import cycle, dropwhile, islice
+import time
 
 def totalLength(path):
     cost = graph[path[len(path) - 1]][path[0]]
@@ -249,6 +250,8 @@ def solver(filename, opt):
         return path, length
 
 
-# res, length = solver(r"C:\Test_code\DoAn\ftv33.csv", 3)
+# start_time = time.perf_counter()
+# res, length = solver(r"C:\Users\Acer\Desktop\HK211\DAAI\ftv33.csv", 3)
 # print(res)
 # print(length)
+# print('Time: ', (time.perf_counter() - start_time), 'seconds')
