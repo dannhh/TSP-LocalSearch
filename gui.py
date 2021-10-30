@@ -1,4 +1,5 @@
 # for GUI
+from tkinter import *
 from tkinter import Tk, Canvas, Entry, Text, Label, Button, PhotoImage, Toplevel, Entry, filedialog
 from PIL import Image, ImageTk
 #for GUI function 
@@ -18,17 +19,20 @@ ASSETS_PATH = OUTPUT_PATH / Path("./assets")
 simulated_annealing=0
 tabu=1
 #initial value
-filename=""
-d_mode=0
-graph=[]
-v=0
-f=1
-coor=[(0,0),(0,0)]
-number_of_cities=0
-cities_list=[]
-cities=[]
-algorithm=simulated_annealing#default algorithm
-opt=2#default opt
+def initial_value():
+    global filename, d_mode, graph, v_mode, is_first_city, vertices, coor, number_of_cities, cities_list, cities, algorithm, opt
+    filename=""
+    d_mode=0 #drawing mode with 0:"city drawing mode", 1:"path drawing mode"
+    graph=[]
+    v_mode=0 #visualize mode with 0:"self-drawing", 1:"csv file", 2:"visualize output"
+    is_first_city=1 #is the first city of two to create path
+    vertices=[] #the coordinate of cities
+    coor=[(0,0),(0,0)] #coordinate of two cities to create path
+    number_of_cities=0
+    cities_list=[]
+    cities=[]
+    algorithm=simulated_annealing#default algorithm
+    opt=2#default opt
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
@@ -99,14 +103,14 @@ class App:
             image=self.button_image_12,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.visualize_csv_input(),
+            command=lambda: [initial_value(),self.visualize_csv_input()],
             relief="flat"
         )
         self.button_14 = Button(
             image=self.button_image_14,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.visualize_selfdrawing_input(),
+            command=lambda: [initial_value(),self.visualize_selfdrawing_input()],
             relief="flat"
         )
         
@@ -121,19 +125,19 @@ class App:
         self.root.mainloop()
     def visualize_csv_input(self):
         global filename
-        filename =filedialog.askopenfilename()
-        global v
-        v=1
+        filename = filedialog.askopenfilename()
+        global v_mode
+        v_mode=1
         draw=self.drawing_window(self.root)
         draw.display()
     def visualize_selfdrawing_input(self):
-        global v
-        v=0
+        global v_mode
+        v_mode=0
         draw=self.drawing_window(self.root)
         draw.display()
     class drawing_window:
         def __init__(self, root):
-            if v==1 and filename=="": return
+            if v_mode==1 and filename=="": return
             self.window=Toplevel(root)
             #Canvas
             self.canvas = Canvas(
@@ -246,7 +250,7 @@ class App:
                 image=self.button_image_15,
                 borderwidth=0,
                 highlightthickness=0,
-                command=lambda: self.change_draw_mode(drawing_canvas),
+                command=lambda: self.change_draw_mode(),
                 relief="flat"
             )
             
@@ -269,20 +273,27 @@ class App:
             place(self.button_7,1092.0,490.0,348.0,60.0)
             place(self.button_9,1242.0,7.0,106.0,60.0)
             #if input is self-drawing                    
-            if v==0:
+            if v_mode==0:
                 place(self.button_15,12.0,110.0,50.0,50.0)
-            if v==0:
+            if v_mode==0:
                 place(self.button_16,12.0,185.0,50.0,50.0)
             #Rectangle
             create_rectangle(self.canvas,0.0,75.0,75.0,1024.0,"#FFCC5C","")
             create_rectangle(self.canvas,0.0,0.0,1440.0,75.0,"#88D8B0","")
             create_rectangle(self.canvas,75.0,874.0,1440.0,1024.0,"#FFEEAD","")
             #Text
-            create_text(self.canvas,105.0,890.0,"nw","Tour cost:","#669F82",("Rubik Medium", int(30 * r_s)))
-            create_text(self.canvas,105.0,935.0,"nw","Tour path:","#669F82",("Rubik Medium", int(30 * r_s)))
+            self.cost_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(27*r_s),width=int(100*r_s),font=("Rubik Medium", int(25 * r_s)),relief="flat")
+            self.tour_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(54*r_s),width=int(1355*r_s),font=("Rubik Medium", int(25 * r_s)),relief="flat")
+            self.time_text=Text(self.canvas,bg="#FFEEAD", fg="#669F82",height=int(27*r_s),width=int(100*r_s),font=("Rubik Medium", int(25 * r_s)),relief="flat")
+            self.cost_text.insert(END, "Tour cost: ")
+            self.tour_text.insert(END, "Tour path: ")
+            self.time_text.insert(END, "Tour time: ")
+            self.cost_text.place(x=int(80*r_s), y=int(880*r_s),width=int(1000*r_s))
+            self.tour_text.place(x=int(80*r_s), y=int(915*r_s),width=int(1355*r_s))
+            self.time_text.place(x=int(80*r_s), y=int(980*r_s),width=int(1000*r_s))
             create_text(self.canvas,50.0,17.0,"nw","Travelling saleman problem","#F9F9F9",("Rubik Black", int(36 * r_s)))
             #if input is csv file
-            if v==1:
+            if v_mode==1:
                 global graph
                 graph = np.loadtxt(filename, delimiter=",")
                 size=len(graph)
@@ -290,23 +301,24 @@ class App:
                 vertices=list(zip(multiple_list(random.sample(range(0,size*2),size),int(1440*r_s*0.75/(size*2))),
                                     multiple_list(random.sample(range(0,size*2),size),int(1024*r_s*0.75/(size*2)))))
                 for i in range (0,size):
-                    self.add_city_path(vertices, graph)                            
+                    self.add_city_path(vertices, graph)                      
             self.window.resizable(False, False)
             self.window.mainloop()
         def run(self):
-            global tour, cost, v, f
+            global tour, cost, v_mode, f
             tour=[]
             cost=0
+            start_time=time.time()
             if algorithm==tabu:
                 tour, cost = tabu_search(graph,opt)
             else:
                 tour, cost = solver(graph,opt)
-            v=2
-            f=1
-            c_label = Label(self.window, text=cost, fg="#669F82", bg="#FFEEAD",font=("Rubik Medium", int(30 * r_s)))
-            c_label.place(x=305.0*r_s,y=890.0*r_s)
-            t_label = Label(self.window, text=tour, fg="#669F82", bg="#FFEEAD",font=("Rubik Medium", int(30 * r_s)))
-            t_label.place(x=305.0*r_s,y=935.0*r_s)
+            exec_time=time.time()-start_time
+            v_mode=2
+            is_first_city=1
+            self.cost_text.insert(END, cost)
+            self.tour_text.insert(END, tour)
+            self.time_text.insert(END, exec_time)
             t_length=len(tour)
             for i in range(t_length):
                 self.add_path(vertices[tour[i]],tour[i])
@@ -315,7 +327,7 @@ class App:
                     self.add_path(vertices[tour[i+1]],tour[i+1])
                     time.sleep(0.5)
         def add_city(self, event):
-            global number_of_cities, vertices
+            global number_of_cities, vertices, graph
             cities_list.append((event.x, event.y))
             cities.append(Button(self.drawing_canvas,
                 image=self.city,
@@ -326,14 +338,15 @@ class App:
                 highlightthickness=0,
                 compound="center",
                 command=lambda c=(event.x-15*r_s,event.y-15*r_s), n=number_of_cities:
-                                    [self.add_path(c,n), vertices.append(event.x,event.y)]
+                                    [self.add_path(c,n)]
+                                 #""", vertices.append(event.x,event.y)"""]
             ))
             cities[number_of_cities].place(x=event.x-15*r_s, y=event.y-15*r_s)
             number_of_cities+=1
             graph.append([])
             for i in range(number_of_cities-1):
                 graph[i].append(999999)
-            for i in range(number_of_citieSs):
+            for i in range(number_of_cities):
                 graph[number_of_cities-1].append(999999)
         def add_city_path(self,vertices, graph):
             global number_of_cities
@@ -357,17 +370,17 @@ class App:
                     canvas.create_text(coor[0][0], coor[1][1],text=graph[i][j])"""
 
         def draw_city(self):
-            self.drawing_canvas.update()
+            #self.drawing_canvas.update()
             if d_mode==0:
-                self.canvas.bind("<Button>",lambda event: self.add_city(event))
-                self.canvas.place()
+                self.drawing_canvas.bind("<Button>", self.add_city)
+                self.drawing_canvas.place()
         def change_draw_mode(self):
             global d_mode, graph
             if d_mode==0:
                 d_mode=1
-                self.unbind("<Button>")
-                self.place()
-        def take_input(ec_window, self, text):
+                self.drawing_canvas.unbind("<Button>")
+                self.drawing_canvas.place()
+        def take_input(self, ec_window, text):
             global graph
             graph[no2][no1]=text.get(1.0,"end-1c")
             self.drawing_canvas.create_text(coor[0][0], coor[1][1],text=graph[no2][no1])
@@ -378,7 +391,6 @@ class App:
             ec_window.destroy()
             ec_window.update()
         def enter_cost(self):
-            print(1)
             ec_window=Toplevel(self.window)
             ec_window.geometry('%dx%d+%d+%d' % (500*r_s,125*r_s,470*r_s,424*r_s))
             ec_canvas = Canvas(
@@ -397,28 +409,28 @@ class App:
                         "#669F82",("Rubik Black", int(18 * r_s)))
             text=Text(ec_canvas)
             place(text,200.0,35.0,100,30)
-            enter=Button(ec_canvas, text="Enter", command= lambda:take_input(ec_window, self,text))
+            enter=Button(ec_canvas, text="Enter", command= lambda: self.take_input(ec_window,text))
             place(enter,200.0,65.0,100,30)
             
         def add_path(self,c,n):
-            if d_mode or v==2:
-                global f
+            if d_mode or v_mode==2:
+                global is_first_city
                 global coor
                 global no1, no2
-                if f:
+                if is_first_city:
                     coor[0]=c
                     no1=n
-                    f=0
+                    is_first_city=0
                 elif c!=coor[0]:
                     coor[1]=c
                     no2=n
                     inter_point=(coor[0][0],coor[1][1])
-                    if v==0:
+                    if v_mode==0:
                         self.drawing_canvas.create_line(coor[0], inter_point ,coor[1], width=1, arrow = "last", smooth=1)
-                        self.drawing_canvas.bind("<Expose>",enter_cost(canvas))
-                    if v==2:
+                        self.enter_cost()
+                    if v_mode==2:
                         self.drawing_canvas.create_line(coor[0], inter_point ,coor[1], width=1, fill="#FF6F69", arrow = "last", smooth=1)
                         self.drawing_canvas.update()
-                    f=1
+                    is_first_city=1
 app=App()
 app.display()
