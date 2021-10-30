@@ -3,6 +3,7 @@ import math
 import random
 from enum import Enum
 from itertools import cycle, dropwhile, islice
+import time
 
 def totalLength(path):
     cost = graph[path[len(path) - 1]][path[0]]
@@ -181,6 +182,7 @@ size = 0
 def solver(graph1, opt):
     global graph
     graph = graph1
+    
     coolingRate = 0.9995
     global size
     size += len(graph)
@@ -246,8 +248,3 @@ def solver(graph1, opt):
         length = totalLength(path)
         path.append(0)
         return path, length
-
-
-# res, length = solver(r"C:\Test_code\DoAn\ftv33.csv", 3)
-# print(res)
-# print(length)
