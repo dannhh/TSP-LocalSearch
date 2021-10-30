@@ -249,6 +249,6 @@ def solver(filename, opt):
         return path, length
 
 
-res, length = solver(r"C:\Test_code\DoAn\ftv33.csv", 3)
-print(res)
-print(length)
+# res, length = solver(r"C:\Test_code\DoAn\ftv33.csv", 3)
+# print(res)
+# print(length)
