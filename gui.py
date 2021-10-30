@@ -1,3 +1,5 @@
+# This file was generated with help of the Tkinter Designer by Parth Jadhav
+# https://github.com/ParthJadhav/Tkinter-Designer
 # for GUI
 from tkinter import *
 from tkinter import Tk, Canvas, Entry, Text, Label, Button, PhotoImage, Toplevel, Entry, filedialog
