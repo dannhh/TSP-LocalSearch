@@ -67,7 +67,7 @@ def three_opt(route,graph):
         for (i, j, k) in possible_segments(len(graph)):
             # we check all the possible moves and save the result into the dict
             for opt_case in OptCase:
-                moves_cost[opt_case] = get_cost_change(best_found_route, opt_case, i, j, k)
+                moves_cost[opt_case] = get_cost_change(graph, best_found_route, opt_case, i, j, k)
             # we need the minimum value of substraction of old route - new route
             best_return = max(moves_cost, key = moves_cost.get)
             if moves_cost[best_return] > 0:
@@ -98,7 +98,7 @@ def possible_segments(N):
 
     return segments
 
-def get_cost_change(route, case, i, j, k):
+def get_cost_change(graph, route, case, i, j, k):
     """ Compare current solution with 7 possible 3-opt moves"""
     if (i - 1) < (k % len(route)):
         first_segment = route[k% len(route):] + route[:i]
