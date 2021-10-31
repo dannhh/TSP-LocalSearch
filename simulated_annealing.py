@@ -83,7 +83,11 @@ def possible_segments(N):
     """ Generate the combination of segments """
     segments = []
     count = 0
-    while count != N:
+    if N == 6:
+        n = 4
+    else:
+        n = N
+    while count != n:
       i = random.randrange(0, N - 4, 1)
       j = random.randrange(i + 2, N - 2, 1)
       k = random.randrange(j + 2, N, 1)

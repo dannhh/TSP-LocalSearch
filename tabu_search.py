@@ -95,7 +95,11 @@ def possible_segments(N):
     """ Generate the combination of segments """
     segments = []
     count = 0
-    while count != neighborhoodSize / 2:
+    if N == 6:
+        n = 4
+    else:
+        n = N
+    while count != n:
         i = random.randrange(0, N - 4, 1)
         j = random.randrange(i + 2, N - 2, 1)
         k = random.randrange(j + 2, N, 1)
@@ -237,7 +241,7 @@ def tabu_search(graph, opt):
         bestCandidateTurn += 1
     sBest.append(s0[0])
     return sBest, cBest
-
+    
 """
 startNode = 0
 graph = np.loadtxt("br17atsp.csv", delimiter=",")
