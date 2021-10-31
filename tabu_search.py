@@ -22,8 +22,18 @@ def cost(graph, route):
 def two_opt(route):
     neighbors = [] 
     list = [] # list of distince random tuples
+    iterSize = 0
     count = 0
-    while count != neighborhoodSize:
+    if len(route) < 6:
+        iterSize = (len(route)-1)/3
+    elif len(route) < 10:
+        iterSize = len(route)-1
+    elif len(route) < 17:
+        iterSize = 3*(len(route)-1)
+    else:
+        iterSize = neighborhoodSize
+        
+    while count != iterSize:
         i = random.randrange(1, len(route) - 2, 1)
         j = random.randrange(i + 1, len(route) - 1, 1)
 
